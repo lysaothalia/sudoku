@@ -24,7 +24,32 @@ let nombreCases = 35;
 let secondes = 0;
 let minuteur = null;
 let chronoLance = false;
+let sonActif = true;
 
+function jouerSon(nom){
+    if (!sonActif){
+        return;
+    }
+    let son = new Audio(nom);
+    son.volume = 0.5;
+    son.play().catch(function(erreur){
+        console.log("Son impossible :", nom, erreur);
+    });
+}
+
+function Son(){
+    let bouton = document.getElementById("boutonSon");
+    bouton.addEventListener("click",function(){
+        jouerSon("Son.mp3")
+        sonActif = !sonActif
+        if (sonActif){
+            bouton.textContent = "🔈"
+        } else {
+            bouton.textContent = "🔇"
+        }
+        bouton.classList.toggle("coupe", !sonActif);
+    });
+}
 function afficherPhrase(){
     let zone = document.getElementById("phrase");
     if (serie < 2){
@@ -154,9 +179,11 @@ function annuler(){
             return
         }
         if (historique.length === 0) {
+            jouerSon("rebootimpossible.mp3")
             return 
         }
         let photo = historique.pop()
+        jouerSon("reboot.mp3")
         grille = photo.grille
         notes = photo.notes
         caseSurlignee = null;
@@ -170,6 +197,7 @@ function annuler(){
 function Notes(){
     let bouton = document.getElementById("boutonNotes");
     bouton.addEventListener("click", function(){
+        jouerSon("boutton.mp3")
         ModeNotes = !ModeNotes;
         bouton.classList.toggle("actif");
         if (ModeNotes){
@@ -182,6 +210,7 @@ function Notes(){
 function Gomme(){
     let bouton = document.getElementById("boutonGomme");
     bouton.addEventListener("click", function(){
+        jouerSon("boutton.mp3")
         ModeGomme = !ModeGomme;
         bouton.classList.toggle("actif");
         if (ModeGomme){
@@ -201,6 +230,7 @@ function perdre(){
     let m = document.getElementById("message")
     m.textContent = "Perdu :("
     m.className = "perdu";
+    jouerSon("perdu.mp3")
     arreterChrono()
 
 }
@@ -210,6 +240,7 @@ function gagner(){
     let m = document.getElementById("message")
     m.textContent = "Gagné Wouhou"
     m.className = "gagne";
+    jouerSon("gagne.mp3")
     arreterChrono()
 }
 
@@ -347,6 +378,7 @@ function afficherGrille(grille){
                     return
                 }
                 if (grille[ligne][colonne] !== 0 && grille[ligne][colonne] === solution[ligne][colonne]){
+                    jouerSon("place1.mp3")
                     if (caseSurlignee !== null && caseSurlignee[0] === ligne && caseSurlignee[1] === colonne){
                         caseSurlignee = null;
                     } else {
@@ -362,6 +394,7 @@ function afficherGrille(grille){
                     sauvegarder()
                     notes[ligne][colonne] = [];
                     afficherGrille(grille);
+                    jouerSon("gomme.mp3")
                     return;
                 }
                 if (chiffreChoisi == null){
@@ -374,11 +407,13 @@ function afficherGrille(grille){
                     sauvegarder()
                     demarrerChrono();
                     if (notes[ligne][colonne].includes(chiffreChoisi)){
+                        jouerSon("gomme.mp3")
                         notes[ligne][colonne] = notes[ligne][colonne].filter(function(n){
                             return n !== chiffreChoisi;
                         });
                     }else {
                     notes[ligne][colonne].push(chiffreChoisi);
+                    jouerSon("note.mp3")
                     }
                     afficherGrille(grille);
                     return
@@ -387,6 +422,7 @@ function afficherGrille(grille){
                     return
                 }
                 if (grille[ligne][colonne] === chiffreChoisi){
+                    jouerSon("place1.mp3")
                     sauvegarder()
                     grille[ligne][colonne] = 0;
                     afficherGrille(grille);
@@ -397,6 +433,7 @@ function afficherGrille(grille){
                 notes[ligne][colonne] = [];
                 grille[ligne][colonne] = chiffreChoisi;
                 if (chiffreChoisi !== solution[ligne][colonne]){
+                    jouerSon("Faux.mp3")
                     vie--;
                     let zoneGrille  = document.getElementById("grille");
                     zoneGrille.classList.add("tremble")
@@ -410,6 +447,7 @@ function afficherGrille(grille){
                     afficherPhrase()
                     afficherVies();
                 } else {
+                    jouerSon("place1.mp3")
                     nettoyerNotes(ligne, colonne, chiffreChoisi);
                     serie++;
                     afficherPhrase()
@@ -422,6 +460,7 @@ function afficherGrille(grille){
             zone.appendChild(div);
         }
     }
+    majPalette();
 }
 
 function afficherPalette(){
@@ -432,6 +471,7 @@ function afficherPalette(){
         div.className = "chiffre";
         div.textContent = chiffre;
         div.addEventListener("click", function(){
+            jouerSon("chiffre.mp3")
             if (chiffreChoisi === chiffre){
                 div.classList.remove("choisi");
                 chiffreChoisi = null;
@@ -450,6 +490,24 @@ function afficherPalette(){
     }
 }
 
+function majPalette(){
+    let boutons = document.querySelectorAll(".chiffre");
+
+    for (let i = 0; i < boutons.length; i++){
+        let n = Number(boutons[i].textContent);
+        let compteur = 0;
+
+        for (let l = 0; l < 9; l++){
+            for (let c = 0; c < 9; c++){
+                if (grille[l][c] === n && grille[l][c] === solution[l][c]){
+                    compteur++;
+                }
+            }
+        }
+
+        boutons[i].classList.toggle("fini", compteur === 9);
+    }
+}
 
 function nouvellePartie(nombreCases){
     vie = 3;
@@ -498,6 +556,7 @@ function Niveaux(){
     let tous = [facile, moyen, difficile];
 
     facile.addEventListener("click", function(){
+        jouerSon("facile.mp3")
         nombreCases = 35;
         for (let b of tous){
             b.classList.remove("niveau-actif");
@@ -506,6 +565,7 @@ function Niveaux(){
         nouvellePartie(nombreCases);
     });
     moyen.addEventListener("click", function(){
+        jouerSon("moyen.mp3")
         nombreCases = 45;
         for (let b of tous){
             b.classList.remove("niveau-actif");
@@ -514,6 +574,7 @@ function Niveaux(){
         nouvellePartie(nombreCases);
     });
     difficile.addEventListener("click", function(){
+        jouerSon("difficile.mp3")
         nombreCases = 52;
         for (let b of tous){
             b.classList.remove("niveau-actif");
@@ -528,7 +589,9 @@ function Niveaux(){
 function Nouvelle(){
     let bouton = document.getElementById("boutonNouvelle");
     bouton.addEventListener("click", function(){
+        jouerSon("nouvellepartie.mp3")
         nouvellePartie(nombreCases);
+        
     });
 }
 
@@ -539,3 +602,4 @@ Gomme();
 annuler();
 Nouvelle();
 Niveaux();
+Son();
