@@ -25,6 +25,30 @@ let secondes = 0;
 let minuteur = null;
 let chronoLance = false;
 let sonActif = true;
+let musique = document.getElementById("musique");
+musique.volume = 0.1;
+let playlist = ["musique.mp3", "musique2.mp3", "musique3.mp3", "musique4.mp3"];
+let indiceMusique = Math.floor(Math.random() * playlist.length);
+musique.src = playlist[indiceMusique];
+
+musique.addEventListener("ended", function(){
+    let nouvelle;
+    do {
+        nouvelle = Math.floor(Math.random() * playlist.length);
+    } while (nouvelle === indiceMusique && playlist.length > 1);
+    indiceMusique = nouvelle;
+    musique.src = playlist[indiceMusique];
+    musique.play();
+});
+let musiqueActive = true;
+
+function lancerMusique(){
+    if (musiqueActive){
+        musique.play().catch(function(erreur){
+            console.log("Musique impossible :", erreur);
+        });
+    }
+}
 
 function jouerSon(nom){
     if (!sonActif){
@@ -39,7 +63,7 @@ function jouerSon(nom){
 
 function Son(){
     let bouton = document.getElementById("boutonSon");
-    bouton.addEventListener("click",function(){
+    bouton.addEventListener("click", function(){
         jouerSon("Son.mp3")
         sonActif = !sonActif
         if (sonActif){
@@ -50,6 +74,23 @@ function Son(){
         bouton.classList.toggle("coupe", !sonActif);
     });
 }
+
+function BoutonMusique(){
+    let bouton = document.getElementById("boutonMusique");
+    bouton.addEventListener("click", function(){
+        jouerSon("boutton.mp3")
+        musiqueActive = !musiqueActive;
+        if (musiqueActive){
+            bouton.textContent = "🎵";
+            lancerMusique();
+        } else {
+            bouton.textContent = "🔕";
+            musique.pause();
+        }
+        bouton.classList.toggle("coupe", !musiqueActive);
+    });
+}
+
 function afficherPhrase(){
     let zone = document.getElementById("phrase");
     if (serie < 2){
@@ -603,3 +644,7 @@ annuler();
 Nouvelle();
 Niveaux();
 Son();
+document.addEventListener("click", function(){
+    lancerMusique();
+}, { once: true });
+BoutonMusique();
