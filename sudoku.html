@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="sudoku.css">
+        <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&display=swap" rel="stylesheet">
+        <title>Sudoku!</title>
+    </head>
+    <body>
+        <div id="page">
+            <div id="entete">
+            <h1>Sudoku</h1>
+            <div id ="phrase"></div>
+            </div>
+            <div id="sudoku">
+                <div id="niveaux">
+                    <button id="boutonFacile">Facile</button>
+                    <button id="boutonMoyen">Moyen</button>
+                    <button id="boutonDifficile">Difficile</button>
+                </div>
+
+                <div id="infos">
+                    <div id="vies"></div>
+                    <div id="chrono">00:00</div>
+                    <button id="boutonNouvelle">Nouvelle partie</button>
+                </div>
+
+                <div id="zoneGrille">
+                    <div id="grille"></div>
+                    <div id="message"></div>
+                </div>
+
+                <div id="palettechiffre"></div>
+
+                <div id="outils">
+                    <button id="boutonNotes">Dessiner</button>
+                    <button id="boutonGomme">Gomme</button>
+                    <button id="boutonAnnuler">Annuler</button>
+                </div>
+            </div>
+        </div>
+        <script src="sudokuscript.js"></script>
+        
+    </body>
+</html>
