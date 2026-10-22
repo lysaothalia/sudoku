@@ -2,11 +2,14 @@ let serie = 0;
 let indicePhrase = 0;
 let phrases = [
     "Bien joué !",
-    "Trop forte !",
+    "Trop fort !",
     "Tu es on Fire !",
-    "Je t'aime",
+    "COOL",
     "Tu gères !",
-    "WOW!"
+    "WOW!",
+    "Genius",
+    "Trop bien !",
+    "Fleur"
 ];
 
 let vie = 3;
