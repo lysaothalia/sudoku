@@ -769,3 +769,7 @@ window.addEventListener("resize", ajuster);
 window.addEventListener("load", ajuster);
 document.fonts.ready.then(ajuster);
 ajuster();
+
+document.addEventListener("gesturestart", function(e){
+    e.preventDefault();
+});
