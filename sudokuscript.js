@@ -1,3 +1,4 @@
+// VARIABLES //
 let serie = 0;
 let indicePhrase = 0;
 let phrases = [
@@ -11,7 +12,6 @@ let phrases = [
     "Trop bien !",
     "Fleur"
 ];
-
 let vie = 3;
 let partieTerminee = false;
 let ModeNotes = false;
@@ -30,9 +30,47 @@ let chronoLance = false;
 let sonActif = true;
 let musique = document.getElementById("musique");
 musique.volume = 0.1;
+let nomsSons = ["boutton.mp3", "Faux.mp3", "place1.mp3", "gagne.mp3", "perdu.mp3",
+                "gomme.mp3", "note.mp3", "chiffre.mp3", "reboot.mp3", "rebootimpossible.mp3",
+                "facile.mp3", "moyen.mp3", "difficile.mp3", "nouvellepartie.mp3", "Son.mp3"];
+let sons = {};
 let playlist = ["musique.mp3", "musique2.mp3", "musique3.mp3", "musique4.mp3"];
 let indiceMusique = Math.floor(Math.random() * playlist.length);
 musique.src = playlist[indiceMusique];
+
+// Sons  ---------------------------------------------------------//
+
+function chargerSons(quandPret){
+    let termines = 0;
+    let fini = false;
+
+    function terminer(){
+        if (fini){
+            return;
+        }
+        fini = true;
+        quandPret();
+    }
+
+    function unDePlus(){
+        termines++;
+        document.getElementById("progression").textContent = termines + " / " + nomsSons.length;
+        if (termines === nomsSons.length){
+            terminer();
+        }
+    }
+
+    for (let nom of nomsSons){
+        let son = new Audio();
+        sons[nom] = son;
+        son.addEventListener("canplaythrough", unDePlus, { once: true });
+        son.addEventListener("error", unDePlus, { once: true });
+        son.src = nom;
+        son.load();
+    }
+
+    setTimeout(terminer, 4000);
+}
 
 musique.addEventListener("ended", function(){
     let nouvelle;
@@ -57,8 +95,13 @@ function jouerSon(nom){
     if (!sonActif){
         return;
     }
-    let son = new Audio(nom);
+    let son = sons[nom];
+    if (!son){
+        son = new Audio(nom);
+        sons[nom] = son;
+    }
     son.volume = 0.5;
+    son.currentTime = 0;
     son.play().catch(function(erreur){
         console.log("Son impossible :", nom, erreur);
     });
@@ -91,6 +134,54 @@ function BoutonMusique(){
             musique.pause();
         }
         bouton.classList.toggle("coupe", !musiqueActive);
+    });
+}
+
+//-----------------------INFOS----------------------------------//
+
+function Niveaux(){
+    let facile = document.getElementById("boutonFacile");
+    let moyen = document.getElementById("boutonMoyen");
+    let difficile = document.getElementById("boutonDifficile");
+    let tous = [facile, moyen, difficile];
+
+    facile.addEventListener("click", function(){
+        jouerSon("facile.mp3")
+        nombreCases = 35;
+        for (let b of tous){
+            b.classList.remove("niveau-actif");
+        }
+        facile.classList.add("niveau-actif");
+        nouvellePartie(nombreCases);
+    });
+    moyen.addEventListener("click", function(){
+        jouerSon("moyen.mp3")
+        nombreCases = 45;
+        for (let b of tous){
+            b.classList.remove("niveau-actif");
+        }
+        moyen.classList.add("niveau-actif");
+        nouvellePartie(nombreCases);
+    });
+    difficile.addEventListener("click", function(){
+        jouerSon("difficile.mp3")
+        nombreCases = 52;
+        for (let b of tous){
+            b.classList.remove("niveau-actif");
+        }
+        difficile.classList.add("niveau-actif");
+        nouvellePartie(nombreCases);
+    });
+
+    facile.classList.add("niveau-actif");   
+}
+
+function Nouvelle(){
+    let bouton = document.getElementById("boutonNouvelle");
+    bouton.addEventListener("click", function(){
+        jouerSon("nouvellepartie.mp3")
+        nouvellePartie(nombreCases);
+        
     });
 }
 
@@ -136,6 +227,80 @@ function arreterChrono(){
     clearInterval(minuteur);
 }
 
+function afficherVies(){
+    let zone = document.getElementById("vies");
+    zone.textContent = "❤️".repeat(vie) + "💔".repeat(3-vie);
+}
+
+function perdre(){
+    partieTerminee = true;
+    let m = document.getElementById("message")
+    m.textContent = "Perdu :("
+    m.className = "perdu";
+    jouerSon("perdu.mp3")
+    arreterChrono()
+
+}
+
+function gagner(){
+    partieTerminee = true;
+    let m = document.getElementById("message")
+    m.textContent = "Gagné Wouhou"
+    m.className = "gagne";
+    jouerSon("gagne.mp3")
+    arreterChrono()
+}
+
+//-----------------------OUTILS----------------------------------//
+
+function annuler(){
+    let boutton = document.getElementById("boutonAnnuler")
+    boutton.addEventListener("click",function(){
+        if (partieTerminee){
+            return
+        }
+        if (historique.length === 0) {
+            jouerSon("rebootimpossible.mp3")
+            return 
+        }
+        let photo = historique.pop()
+        jouerSon("reboot.mp3")
+        grille = photo.grille
+        notes = photo.notes
+        caseSurlignee = null;
+        afficherGrille(grille)
+}
+)
+}
+
+function Notes(){
+    let bouton = document.getElementById("boutonNotes");
+    bouton.addEventListener("click", function(){
+        jouerSon("boutton.mp3")
+        ModeNotes = !ModeNotes;
+        bouton.classList.toggle("actif");
+        if (ModeNotes){
+            ModeGomme = false;
+            document.getElementById("boutonGomme").classList.remove("actif");
+        }
+    });
+}
+
+function Gomme(){
+    let bouton = document.getElementById("boutonGomme");
+    bouton.addEventListener("click", function(){
+        jouerSon("boutton.mp3")
+        ModeGomme = !ModeGomme;
+        bouton.classList.toggle("actif");
+        if (ModeGomme){
+            ModeNotes = false;
+            document.getElementById("boutonNotes").classList.remove("actif");
+        }
+    });
+}
+
+//-----------------------LOGIQUE----------------------------------//
+
 function melanger(liste){
     for (let i= liste.length-1; i>0; i--){
         let j = Math.floor(Math.random() * (i+1));
@@ -174,13 +339,33 @@ function genererGrilleComplete(){
 }
 
 function retirerCases(g, nombre){
+    let positions = [];
+    for (let i = 0; i < 9; i++){
+        for (let j = 0; j < 9; j++){
+            positions.push([i, j]);
+        }
+    }
+    melanger(positions);
+
     let retirees = 0;
-    while (retirees < nombre){
-        let i = Math.floor(Math.random() * 9);
-        let j = Math.floor(Math.random() * 9);
-        if (g[i][j] !== 0){
-            g[i][j] = 0
+    for (let pos of positions){
+        if (retirees >= nombre){
+            break;
+        }
+        let i = pos[0];
+        let j = pos[1];
+        let valeur = g[i][j];
+        g[i][j] = 0;
+
+        let copie = [];
+        for (let ligne of g){
+            copie.push([...ligne]);
+        }
+
+        if (compterSolutions(copie) === 1){
             retirees ++
+        } else {
+            g[i][j] = valeur;
         }
     }
 }
@@ -214,78 +399,6 @@ function nettoyerNotes(ligne, colonne, chiffre){
             }
         }
     }
-}
-
-function annuler(){
-    let boutton = document.getElementById("boutonAnnuler")
-    boutton.addEventListener("click",function(){
-        if (partieTerminee){
-            return
-        }
-        if (historique.length === 0) {
-            jouerSon("rebootimpossible.mp3")
-            return 
-        }
-        let photo = historique.pop()
-        jouerSon("reboot.mp3")
-        grille = photo.grille
-        notes = photo.notes
-        caseSurlignee = null;
-        afficherGrille(grille)
-}
-)
-}
-
-
-
-function Notes(){
-    let bouton = document.getElementById("boutonNotes");
-    bouton.addEventListener("click", function(){
-        jouerSon("boutton.mp3")
-        ModeNotes = !ModeNotes;
-        bouton.classList.toggle("actif");
-        if (ModeNotes){
-            ModeGomme = false;
-            document.getElementById("boutonGomme").classList.remove("actif");
-        }
-    });
-}
-
-function Gomme(){
-    let bouton = document.getElementById("boutonGomme");
-    bouton.addEventListener("click", function(){
-        jouerSon("boutton.mp3")
-        ModeGomme = !ModeGomme;
-        bouton.classList.toggle("actif");
-        if (ModeGomme){
-            ModeNotes = false;
-            document.getElementById("boutonNotes").classList.remove("actif");
-        }
-    });
-}
-
-function afficherVies(){
-    let zone = document.getElementById("vies");
-    zone.textContent = "❤️".repeat(vie) + "💔".repeat(3-vie);
-}
-
-function perdre(){
-    partieTerminee = true;
-    let m = document.getElementById("message")
-    m.textContent = "Perdu :("
-    m.className = "perdu";
-    jouerSon("perdu.mp3")
-    arreterChrono()
-
-}
-
-function gagner(){
-    partieTerminee = true;
-    let m = document.getElementById("message")
-    m.textContent = "Gagné Wouhou"
-    m.className = "gagne";
-    jouerSon("gagne.mp3")
-    arreterChrono()
 }
 
 function grilleTerminee(grille){
@@ -369,6 +482,28 @@ function resoudre(grille){
         }
     }
     return false;
+}
+
+function compterSolutions(grille){
+    let vide = trouverCaseVide(grille);
+    if (vide === null){
+        return 1 ;    
+    }
+    let ligne = vide[0];
+    let colonne = vide[1];
+    let total = 0;
+
+    for (let chiffre = 1; chiffre <= 9; chiffre++){
+        if (estValide(grille, ligne, colonne, chiffre)){
+            grille[ligne][colonne] = chiffre;
+            total = total + compterSolutions(grille);
+            grille[ligne][colonne] = 0;
+            if (total >= 2){
+                return total;
+            }
+        }
+    }
+    return total;
 }
 
 function afficherGrille(grille){
@@ -507,6 +642,8 @@ function afficherGrille(grille){
     majPalette();
 }
 
+// Palette chfifre -------------------------
+
 function afficherPalette(){
     let zonechiffre = document.getElementById("palettechiffre")
     zonechiffre.innerHTML = "";
@@ -553,6 +690,8 @@ function majPalette(){
     }
 }
 
+// BLOQUE PRINCIPALE -----------------------------
+
 function nouvellePartie(nombreCases){
     vie = 3;
     partieTerminee = false;
@@ -593,52 +732,7 @@ function nouvellePartie(nombreCases){
     afficherPhrase()
 }
 
-function Niveaux(){
-    let facile = document.getElementById("boutonFacile");
-    let moyen = document.getElementById("boutonMoyen");
-    let difficile = document.getElementById("boutonDifficile");
-    let tous = [facile, moyen, difficile];
-
-    facile.addEventListener("click", function(){
-        jouerSon("facile.mp3")
-        nombreCases = 35;
-        for (let b of tous){
-            b.classList.remove("niveau-actif");
-        }
-        facile.classList.add("niveau-actif");
-        nouvellePartie(nombreCases);
-    });
-    moyen.addEventListener("click", function(){
-        jouerSon("moyen.mp3")
-        nombreCases = 45;
-        for (let b of tous){
-            b.classList.remove("niveau-actif");
-        }
-        moyen.classList.add("niveau-actif");
-        nouvellePartie(nombreCases);
-    });
-    difficile.addEventListener("click", function(){
-        jouerSon("difficile.mp3")
-        nombreCases = 52;
-        for (let b of tous){
-            b.classList.remove("niveau-actif");
-        }
-        difficile.classList.add("niveau-actif");
-        nouvellePartie(nombreCases);
-    });
-
-    facile.classList.add("niveau-actif");   
-}
-
-function Nouvelle(){
-    let bouton = document.getElementById("boutonNouvelle");
-    bouton.addEventListener("click", function(){
-        jouerSon("nouvellepartie.mp3")
-        nouvellePartie(nombreCases);
-        
-    });
-}
-
+//APPELS-----------------------------
 
 nouvellePartie(nombreCases);
 Notes();
@@ -647,7 +741,31 @@ annuler();
 Nouvelle();
 Niveaux();
 Son();
-document.addEventListener("click", function(){
+chargerSons(function(){
+    document.getElementById("texteChargement").textContent = "Prêt !";
+    document.getElementById("boutonJouer").disabled = false;
+});
+
+document.getElementById("boutonJouer").addEventListener("click", function(){
+    document.getElementById("chargement").classList.add("cache");
     lancerMusique();
-}, { once: true });
+});
 BoutonMusique();
+
+function ajuster(){
+    let page = document.getElementById("page");
+    page.style.zoom = 1;
+
+    if (window.innerWidth <= 500){
+        return;
+    }
+
+    let hauteur = page.offsetHeight;
+    let facteur = Math.min(1, window.innerHeight / hauteur);
+    page.style.zoom = facteur;
+}
+
+window.addEventListener("resize", ajuster);
+window.addEventListener("load", ajuster);
+document.fonts.ready.then(ajuster);
+ajuster();
