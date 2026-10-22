@@ -1,11 +1,33 @@
 body {
     display: flex;
     justify-content: center;
-    align-items: center;
     min-height: 100vh;
     margin: 0;
     font-family: 'Fredoka', sans-serif;
     background-color: #87b574;
+    scrollbar-gutter: stable;
+}
+
+#chargement {
+    position: fixed;
+    inset: 0;
+    background: #87b574;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    z-index: 100;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+#chargement p {
+    margin: 0;
+}
+
+#chargement.cache {
+    display: none;
 }
 
 #sudoku {
@@ -36,17 +58,12 @@ body {
     text-align: right;
 }
 
-@keyframes arcenciel {
-    to { background-position: 200% center; }
-}
-
 #phrase {
     background: linear-gradient(90deg, #d41827, #cf8011, #87da0a, #0599d3, #5e0adb, #c21423);
     background-size: 200% auto;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: arcenciel 3s linear infinite;
 }
 
 @keyframes pop {
@@ -56,7 +73,7 @@ body {
 }
 
 #phrase.pop {
-    animation: pop 0.3s, arcenciel 3s linear infinite;
+    animation: pop 0.3s;
 }
 
 #page {
@@ -64,6 +81,7 @@ body {
     max-width: 500px;
     display: flex;
     flex-direction: column;
+    margin: auto;
 }
 
 
@@ -270,6 +288,7 @@ button.actif{
 #chrono {
     font-size: 24px;
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
 }
 
 #boutonsSon {
@@ -313,6 +332,7 @@ button.actif{
     body {
         padding: 0 8px;
         box-sizing: border-box;
+        min-height: 100dvh;
     }
 
     #sudoku {
